@@ -1,0 +1,8 @@
+[package]
+name = "tf2hax"
+version = "0.1.0"
+authors = ["Assil Ksiksi"]
+edition = "2018"
+
+[dependencies]
+tf2hax_lib = { path = "../tf2hax_lib" }

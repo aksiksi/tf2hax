@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "bindings",
+    "tf2hax_lib",
+    "tf2hax",
+]
