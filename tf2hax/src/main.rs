@@ -1,7 +1,7 @@
 #![cfg(windows)]
 
+use tf2hax_lib::player::PlayerState;
 use tf2hax_lib::process::Process;
-use tf2hax_lib::PlayerState;
 
 fn main() {
     let process = Process::from_window("Team Fortress 2").expect("Failed to attach to process");

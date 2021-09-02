@@ -13,7 +13,7 @@ use bindings::Windows::Win32::System::Threading::{
 use bindings::Windows::Win32::UI::WindowsAndMessaging::{FindWindowW, GetWindowThreadProcessId};
 
 /// Represents the info needed to interact with a Windows process.
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Process {
     /// Absolute path to the process executable
     path: PathBuf,
