@@ -29,7 +29,7 @@ impl PlayerState {
         let addr = (self.client_base_addr as usize + Self::HP_OFFSET) as *const c_void;
 
         unsafe {
-            ReadProcessMemory(self.process.handle(), addr, buf_ptr, 2, 0 as *mut usize);
+            ReadProcessMemory(self.process.handle(), addr, buf_ptr, buf.len(), 0 as *mut usize);
         }
 
         u16::from_le_bytes(buf) as u32
