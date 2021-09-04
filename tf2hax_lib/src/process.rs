@@ -25,7 +25,6 @@ impl Process {
     /// Queries the process that owns the window with the given name
     pub fn from_window(name: &str) -> Option<Self> {
         let (handle, process_id, path) = unsafe { Self::find_process_info(name)? };
-
         let path = PathBuf::from(&path);
 
         Some(Self {
@@ -39,26 +38,40 @@ impl Process {
         self.handle
     }
 
-    pub fn name(&self) -> &str {
-        &self.path.file_name().unwrap().to_str().unwrap()
+    /// Returns the name of the executable that spawned this process.
+    ///
+    /// The return type is `Option<&str>` due to `OSString` conversion. You should
+    /// be able to unwrap the returned `Option` in the vast majority of cases.
+    pub fn name(&self) -> Option<&str> {
+        self.path.file_name().as_ref().and_then(|n| n.to_str())
     }
 
     unsafe fn find_process_info(window_name: &str) -> Option<(HANDLE, u32, String)> {
+        // Get the handle for the window with the given name
         let win_handle = FindWindowW(None, window_name);
         if win_handle.is_null() {
             eprintln!("failed to get window handle");
             return None;
         }
 
+        // Find the process ID that owns the window
         let mut process_id = 0u32;
         GetWindowThreadProcessId(win_handle, &mut process_id);
 
+        // Get a handle to the process
         let handle = OpenProcess(PROCESS_ALL_ACCESS, false, process_id);
         if handle.is_null() || handle.is_invalid() {
             eprintln!("failed to get process handle: {:?}", GetLastError());
             return None;
         }
 
+        // Use the handle to read the process executable's path
+        let process_path = Self::get_process_executable_path(handle)?;
+
+        return Some((handle, process_id, process_path));
+    }
+
+    unsafe fn get_process_executable_path(handle: HANDLE) -> Option<String> {
         let mut buf = [0u8; 256];
         let pstr = PSTR(buf.as_mut_ptr() as *mut u8);
         let mut pstr_size = buf.len() as u32;
@@ -71,7 +84,7 @@ impl Process {
 
         let process_path = crate::util::string_from_bytes(&buf)?;
 
-        return Some((handle, process_id, process_path));
+        Some(process_path)
     }
 
     /// Given the name of a module (DLL), returns the base address of the module in this process.
