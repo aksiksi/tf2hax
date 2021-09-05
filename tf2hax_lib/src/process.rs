@@ -43,7 +43,11 @@ impl Process {
     /// The return type is `Option<&str>` due to `OSString` conversion. You should
     /// be able to unwrap the returned `Option` in the vast majority of cases.
     pub fn name(&self) -> Option<&str> {
-        self.path.file_name().as_ref().and_then(|n| n.to_str())
+        self.path.file_name().and_then(|n| n.to_str())
+    }
+
+    pub fn path(&self) -> Option<&str> {
+        self.path.to_str()
     }
 
     unsafe fn find_process_info(window_name: &str) -> Option<(HANDLE, u32, String)> {
